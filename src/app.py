@@ -1,0 +1,66 @@
+from flask import Flask, request, redirect
+import sqlite3
+import bcrypt
+
+app = Flask(__name__)
+
+@app.route('/')
+def hello():
+    return "Hello World!"
+
+@app.route('/cause-register', methods = ['POST', 'GET'])
+def cause_query():
+
+    connection = sqlite3.connect('globalreach.db')
+    cursor = connection.cursor()
+
+    if request.method=='POST':
+
+        org= request.form['org']
+        cause= request.form['cause']
+        desc= request.form['description']
+        email= request.form['email']
+        target= request.form['target']
+
+        try: 
+            cursor.execute("INSERT INTO causes(organization, causeName, description, email, monetaryTarget, moneyRaised) VALUES(?,?,?,?,?,?)", (org, cause, desc, email, target, 0))
+            connection.commit()
+            return redirect('/')
+
+        except:
+            return 'Error, cause not added'
+
+    else:
+        #to add
+        return redirect('/')
+
+@app.route('/user-register', methods = ['POST', 'GET'])
+def userregister():
+
+    connection = sqlite3.connect('globalreach.db')
+    cursor = connection.cursor()
+
+    if request.method == 'POST':
+        email = request.form["email"]
+        name = request.form["name"]
+        phoneNum = request.form["phoneNum"]
+        picture = "null"
+        rawPass = request.form["password"]
+
+        salt = bcrypt.gensalt()
+        hashedPass = bcrypt.hashpw(rawPass.encode('utf8'), salt)
+
+        try:
+            cursor.execute("INSERT INTO users (email, password, name, phoneNum, picture, points) VALUES (?, ?, ?, ?, ?, ?)", (email, hashedPass, name, phoneNum, picture, 0))
+            connection.commit()
+            return redirect('/')
+        except:
+            "Error, registration failed"
+
+    else:
+        #to add
+        return redirect('/')
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
