@@ -23,5 +23,12 @@ def cause_query():
             connection.commit()
             return redirect('/')
 
+        except:
+            return 'Error, cause not added'
+
+    else:
+        #to add
+        return redirect('/')
+
 if __name__ == '__main__':
     app.run(debug=True)
