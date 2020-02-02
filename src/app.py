@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect
+from flask import Flask, request, redirect, render_template
 import sqlite3
 import bcrypt
 import json
@@ -7,7 +7,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def hello():
-    return "Hello World!"
+    return render_template('home.html')
 
 @app.route('/getcauses')
 def getcauses():
@@ -36,25 +36,25 @@ def cause_query():
     connection = sqlite3.connect('globalreach.db')
     cursor = connection.cursor()
 
-    if request.method =='POST':
+    if request.method == 'POST':
 
-        org = request.form['org']
-        cause = request.form['cause']
-        desc = request.form['description']
-        email = request.form['email']
-        target = request.form['target']
+        org = request.form["org"]
+        cause = request.form["cause"]
+        desc = request.form["description"]
+        email = request.form["email"]
+        target = request.form["target"]
 
         try: 
             cursor.execute("INSERT INTO causes(organization, causeName, description, email, monetaryTarget, moneyRaised) VALUES(?,?,?,?,?,?)", (org, cause, desc, email, target, 0))
             connection.commit()
+            
             return redirect('/')
 
         except:
             return 'Error, cause not added'
 
     else:
-        #to add
-        return redirect('/')
+        return render_template('createcause.html')
 
 @app.route('/user-register', methods = ['POST', 'GET'])
 def userregister():
@@ -80,8 +80,7 @@ def userregister():
             "Error, registration failed"
 
     else:
-        #to add
-        return redirect('/')
+        return render_template('userregistration.html')
 
 
 if __name__ == '__main__':
